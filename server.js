@@ -36,7 +36,8 @@ app.get('/api/dates', (req, res) => {
 });
 
 /**
- * 2. 특정 날짜에 생성된 카드뉴스 이미지 파일 정보 제공 API
+ * 2. 특정 날짜에 생성된 사주 정보 및 카드뉴스 이미지 정보 제공 API
+ * 각 일자별 폴더 내 metadata.json 파일을 읽어서 반환
  */
 app.get('/api/images/:date', (req, res) => {
   const dateStr = req.params.date;
@@ -47,20 +48,34 @@ app.get('/api/images/:date', (req, res) => {
   }
 
   try {
-    const files = fs.readdirSync(targetDir)
-      .filter(file => file.endsWith('.png'))
-      .map(file => {
-        // 파일명 분석 (예: 2026-07-01_쥐띠.png -> "쥐띠" 추출)
-        const zodiac = file.replace(`${dateStr}_`, '').replace('.png', '');
-        return {
-          zodiac,
-          fileName: file,
-          url: `/output/${dateStr}/${file}`
-        };
-      });
-    res.json(files);
+    const files = fs.readdirSync(targetDir);
+    const metaPath = path.join(targetDir, 'metadata.json');
+    
+    let metadata = {
+      topic: "사주 분석",
+      thumbnailText: "",
+      contentText: ""
+    };
+
+    if (fs.existsSync(metaPath)) {
+      metadata = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+    }
+
+    const coverFile = files.find(f => f.includes('_cover.png'));
+    const contentFile = files.find(f => f.includes('_content.png'));
+
+    res.json({
+      date: dateStr,
+      topic: metadata.topic,
+      thumbnailText: metadata.thumbnailText,
+      contentText: metadata.contentText,
+      coverUrl: coverFile ? `/output/${dateStr}/${coverFile}` : null,
+      contentUrl: contentFile ? `/output/${dateStr}/${contentFile}` : null,
+      videoUrl: files.find(f => f.endsWith('.mp4')) ? `/output/${dateStr}/shorts_video.mp4` : null
+    });
   } catch (error) {
-    res.status(500).json({ error: '이미지 목록 로드 중 에러 발생' });
+    console.error(error);
+    res.status(500).json({ error: '사주 정보 로드 중 에러 발생' });
   }
 });
 

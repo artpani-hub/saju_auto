@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/artpani-hub/saju_auto#readme",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@napi-rs/canvas": "^1.0.2",
     "axios": "^1.18.1",
     "dotenv": "^17.4.2",

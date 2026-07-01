@@ -2,6 +2,19 @@ const { createCanvas } = require('@napi-rs/canvas');
 const fs = require('fs');
 const path = require('path');
 
+// 9대 주제별 맞춤 그라데이션 테마 셋팅
+const THEMES = {
+  "사주팔자": { bgStart: "#1a1a24", bgEnd: "#2c2538", accent: "#d4af37", text: "#ffffff" }, // 신비로운 다크 바이올렛
+  "인연운": { bgStart: "#281b22", bgEnd: "#402030", accent: "#ff6b8b", text: "#ffffff" },   // 로맨틱 피치 핑크
+  "가족/자녀운": { bgStart: "#12251a", bgEnd: "#1f3c2a", accent: "#2ecc71", text: "#ffffff" }, // 편안한 그린
+  "인간관계": { bgStart: "#1a2535", bgEnd: "#101825", accent: "#3498db", text: "#ffffff" }, // 차분한 스카이블루
+  "금전/재물운": { bgStart: "#2b2015", bgEnd: "#45321b", accent: "#f39c12", text: "#ffffff" }, // 클래식 딥골드
+  "직업/사업/이직운": { bgStart: "#152528", bgEnd: "#0e1a1b", accent: "#1abc9c", text: "#ffffff" }, // 지적인 틸(Teal)
+  "건강운": { bgStart: "#251212", bgEnd: "#3a1d1d", accent: "#e74c3c", text: "#ffffff" },   // 강렬한 딥레드
+  "오늘의 운세": { bgStart: "#1a1a24", bgEnd: "#2c2538", accent: "#d4af37", text: "#ffffff" }, // 신비로운 골드
+  "띠별 운세": { bgStart: "#23232f", bgEnd: "#151522", accent: "#9b59b6", text: "#ffffff" }  // 화려한 아메시스트 퍼플
+};
+
 /**
  * 텍스트가 캔버스 폭을 넘어갈 때 자동으로 줄바꿈을 해주는 함수
  */
@@ -15,7 +28,6 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     let metrics = ctx.measureText(testLine);
     let testWidth = metrics.width;
     
-    // 띄어쓰기가 아닌 한국어 글자 단위의 처리를 위해 글자마다 측정
     if (testWidth > maxWidth && n > 0) {
       lines.push(line);
       line = words[n];
@@ -24,84 +36,146 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
     }
   }
   lines.push(line);
-
-  // 세로 정렬 시 전체 높이를 고려할 수 있게 lines 배열 반환
   return lines;
 }
 
 /**
- * 띠별 운세 카드뉴스 이미지를 렌더링하여 저장합니다.
- * @param {string} zodiac 띠 이름 (예: "호랑이띠")
- * @param {string} fortune 운세 텍스트
- * @param {string} dateStr 날짜 표시 텍스트 (예: "2026-07-01")
- * @param {string} outputPath 이미지가 저장될 파일 경로
+ * 주제별 맞춤 카드뉴스 이미지 2장(썸네일 표지 + 상세 내용 페이지)을 렌더링하여 저장합니다.
+ * @param {string} topic 사주 주제 (예: "인연운")
+ * @param {string} thumbnailText 썸네일 제목 문구
+ * @param {string} contentText 운세 상세 본문
+ * @param {string} dateStr 날짜
+ * @param {string} outputDir 이미지가 저장될 디렉토리 경로
+ * @returns {Promise<{coverPath: string, contentPath: string}>} 저장된 이미지 경로 객체
  */
-async function generateZodiacCard(zodiac, fortune, dateStr, outputPath) {
+async function generateSajuCards(topic, thumbnailText, contentText, dateStr, outputDir) {
   const width = 1080;
   const height = 1080;
-  const canvas = createCanvas(width, height);
-  const ctx = canvas.getContext('2d');
+  const theme = THEMES[topic] || THEMES["오늘의 운세"];
 
-  // 1. 고급스러운 그라데이션 배경 그리기
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, '#1a1a24'); // 깊은 다크 네이비/차콜
-  gradient.addColorStop(1, '#2c2538'); // 은은한 다크 바이올렛
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
+  fs.mkdirSync(outputDir, { recursive: true });
 
-  // 2. 테두리 가이드 선 (고급스러운 카드 느낌)
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.2)'; // 은은한 골드 투명도 라인
-  ctx.lineWidth = 2;
-  ctx.strokeRect(40, 40, width - 80, height - 80);
+  // ----------------------------------------------------
+  // [1페이지: 썸네일 표지 카드 생성]
+  // ----------------------------------------------------
+  const canvasCover = createCanvas(width, height);
+  const ctxCover = canvasCover.getContext('2d');
 
-  // 내부 얇은 보더 라인 추가
-  ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(55, 55, width - 110, height - 110);
+  // 배경 그라데이션
+  const gradCover = ctxCover.createLinearGradient(0, 0, width, height);
+  gradCover.addColorStop(0, theme.bgStart);
+  gradCover.addColorStop(1, theme.bgEnd);
+  ctxCover.fillStyle = gradCover;
+  ctxCover.fillRect(0, 0, width, height);
 
-  // 3. 날짜 텍스트 렌더링 (상단 중앙)
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-  ctx.font = '300 24px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(dateStr, width / 2, 150);
-
-  // 4. 메인 제목 렌더링 (띠 이름)
-  ctx.fillStyle = '#d4af37'; // 메탈릭 골드 컬러톤
-  ctx.font = 'bold 72px sans-serif';
-  ctx.fillText(zodiac, width / 2, 270);
-
-  // 데코레이션 문양 (디자인 포인트)
-  ctx.fillStyle = 'rgba(212, 175, 55, 0.6)';
-  ctx.font = '28px sans-serif';
-  ctx.fillText('✦ ─────────── ✦', width / 2, 350);
-
-  // 5. 운세 본문 텍스트 자동 줄바꿈 및 렌더링 (중앙 정렬)
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'normal 42px sans-serif';
+  // 이중 골드/액센트 보더 라인
+  ctxCover.strokeStyle = `rgba(${hexToRgb(theme.accent)}, 0.25)`;
+  ctxCover.lineWidth = 4;
+  ctxCover.strokeRect(40, 40, width - 80, height - 80);
   
-  const textX = width / 2;
-  const startY = 460;
-  const maxWidth = 750;
-  const lineHeight = 65;
+  ctxCover.strokeStyle = `rgba(${hexToRgb(theme.accent)}, 0.45)`;
+  ctxCover.lineWidth = 1;
+  ctxCover.strokeRect(55, 55, width - 110, height - 110);
 
-  const lines = wrapText(ctx, fortune, textX, startY, maxWidth, lineHeight);
+  // 상단 주제 카테고리 태그 박스
+  ctxCover.fillStyle = `rgba(${hexToRgb(theme.accent)}, 0.15)`;
+  ctxCover.strokeStyle = theme.accent;
+  ctxCover.lineWidth = 1;
+  roundRect(ctxCover, width / 2 - 110, 160, 220, 50, 25, true, true);
+  
+  ctxCover.fillStyle = theme.accent;
+  ctxCover.font = 'bold 24px sans-serif';
+  ctxCover.textAlign = 'center';
+  ctxCover.fillText(topic, width / 2, 193);
 
-  // 줄바꿈된 텍스트들을 중앙 정렬 상태로 순차 렌더링
-  lines.forEach((line, index) => {
-    ctx.fillText(line, textX, startY + (index * lineHeight));
+  // 중앙 썸네일 카피 제목 드로잉 (어그로 텍스트 줄바꿈 적용)
+  ctxCover.fillStyle = '#ffffff';
+  ctxCover.font = 'bold 64px sans-serif';
+  const coverLines = wrapText(ctxCover, thumbnailText, width / 2, 380, 800, 90);
+  
+  const coverStartY = 450 - ((coverLines.length - 1) * 45);
+  coverLines.forEach((line, index) => {
+    ctxCover.fillText(line, width / 2, coverStartY + (index * 95));
   });
 
-  // 6. 하단 워터마크/채널 홍보 (아웃트로 유도)
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-  ctx.font = '300 28px sans-serif';
-  ctx.fillText('@saju_auto • 일일 운세', width / 2, 920);
+  // 데코 문양
+  ctxCover.fillStyle = theme.accent;
+  ctxCover.font = '36px sans-serif';
+  ctxCover.fillText('✦ ─────────── ✦', width / 2, coverStartY + (coverLines.length * 95) + 30);
 
-  // 이미지 파일로 디스크에 저장
-  const buffer = canvas.toBuffer('image/png');
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, buffer);
+  // 하단 워터마크
+  ctxCover.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctxCover.font = '300 28px sans-serif';
+  ctxCover.fillText('@saju_auto • 사주 분석', width / 2, 920);
+
+  const coverPath = path.join(outputDir, `${dateStr}_01_cover.png`);
+  fs.writeFileSync(coverPath, canvasCover.toBuffer('image/png'));
+
+  // ----------------------------------------------------
+  // [2페이지: 상세 본문 카드 생성]
+  // ----------------------------------------------------
+  const canvasContent = createCanvas(width, height);
+  const ctxContent = canvasContent.getContext('2d');
+
+  // 배경 채우기
+  ctxContent.fillStyle = gradCover;
+  ctxContent.fillRect(0, 0, width, height);
+  ctxContent.strokeRect(40, 40, width - 80, height - 80);
+  ctxContent.strokeRect(55, 55, width - 110, height - 110);
+
+  // 상단 헤더
+  ctxContent.fillStyle = theme.accent;
+  ctxContent.font = 'bold 36px sans-serif';
+  ctxContent.fillText(topic, width / 2, 180);
+
+  ctxContent.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctxContent.font = '300 24px sans-serif';
+  ctxContent.fillText('──────── 기운의 해석 ────────', width / 2, 230);
+
+  // 본문 텍스트 자동 줄바꿈 드로잉
+  ctxContent.fillStyle = theme.text;
+  ctxContent.font = 'normal 40px sans-serif';
+  const contentLines = wrapText(ctxContent, contentText, width / 2, 330, 820, 68);
+  
+  const contentStartY = 330;
+  contentLines.forEach((line, index) => {
+    ctxContent.fillText(line, width / 2, contentStartY + (index * 72));
+  });
+
+  // 하단 안내
+  ctxContent.fillStyle = theme.accent;
+  ctxContent.font = 'bold 30px sans-serif';
+  ctxContent.fillText('✦ 복채는 좋아요와 구독으로 ✦', width / 2, 900);
+
+  const contentPath = path.join(outputDir, `${dateStr}_02_content.png`);
+  fs.writeFileSync(contentPath, canvasContent.toBuffer('image/png'));
+
+  return { coverPath, contentPath };
+}
+
+// 둥근 사각형 그리기 헬퍼
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height - radius);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+  if (fill) ctx.fill();
+  if (stroke) ctx.stroke();
+}
+
+// Hex 색상값을 RGB로 파싱해주는 헬퍼
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : "212, 175, 55";
 }
 
 module.exports = {
-  generateZodiacCard
+  generateSajuCards
 };
