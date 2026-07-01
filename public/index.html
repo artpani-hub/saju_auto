@@ -287,6 +287,61 @@
       object-fit: cover;
     }
 
+    /* 비디오 미리보기 컨테이너 */
+    .video-preview-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      background-color: #fafafa;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 250px;
+      justify-content: center;
+      position: relative;
+    }
+
+    .video-wrapper {
+      width: 180px;
+      height: 320px;
+      background-color: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: none; /* 비디오 성공적으로 로드되었을 때만 보이게 제어 */
+    }
+
+    .video-wrapper video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 비디오 없음 대체 뷰 */
+    .video-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 12px;
+      color: var(--text-muted);
+      padding: 40px;
+    }
+
+    .video-placeholder i {
+      font-size: 32px;
+      color: var(--accent-color);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.7; }
+    }
+
     .txt-group {
       display: flex;
       flex-direction: column;
@@ -400,7 +455,7 @@
       background-color: #b58c20;
     }
 
-    /* 탭 헤더 스타일 추가 */
+    /* 탭 헤더 스타일 */
     .tab-header {
       display: flex;
       border-bottom: 2px solid var(--card-border);
@@ -638,7 +693,7 @@
     <!-- 대시보드 그리드 -->
     <div class="content-grid" id="contentGrid" style="display: none;">
       
-      <!-- 좌측: 카드뉴스 미디어 프리뷰 -->
+      <!-- 좌측: 카드뉴스 미디어 프리뷰 및 숏폼 비디오 연동 -->
       <div class="dashboard-panel">
         <div class="panel-title">카드뉴스 콘텐츠 프리뷰 (PNG)</div>
         <div class="img-grid">
@@ -653,6 +708,29 @@
               <img id="contentImg" src="" alt="본문 이미지">
             </div>
             <div class="label-tag">02. 상세 설명 디자인</div>
+          </div>
+        </div>
+
+        <!-- 3단계 전용 비디오 예외 플레이어 영역 -->
+        <div style="margin-top: 15px;">
+          <div class="txt-label" style="margin-bottom: 8px;">03. 렌더링 숏폼 비디오 미리보기 (MP4)</div>
+          <div class="video-preview-box">
+            
+            <!-- 실제 비디오 로드 뷰 (성공 시만 활성화) -->
+            <div class="video-wrapper" id="videoWrapper">
+              <video id="shortsVideo" controls loop>
+                <source src="" type="video/mp4">
+                브라우저가 재생을 지원하지 않습니다.
+              </video>
+            </div>
+
+            <!-- 비디오 파일 미생성/대기 플레이스홀더 뷰 -->
+            <div class="video-placeholder" id="videoPlaceholder">
+              <i class="fa-solid fa-clapperboard"></i>
+              <div style="font-weight: 700; font-size: 14px;">숏폼 비디오 생성 대기 중</div>
+              <div style="font-size: 12px; max-width: 250px;">3단계 비디오 합성기 기능 가동 시 실시간 렌더링 동영상이 표출됩니다.</div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -722,11 +800,10 @@
           </div>
         </div>
 
-        <!-- 벤치마킹 쇼츠 리스트 (탭 2분할 토글 구성) -->
+        <!-- 벤치마킹 쇼츠 리스트 -->
         <div class="dashboard-panel">
           <div class="panel-title">유튜브 사주 트렌드 벤치마킹</div>
           
-          <!-- 탭 구조 버튼 -->
           <div class="tab-header">
             <button class="tab-btn active-tab" id="tabTop" onclick="switchBenchmarkTab('top')">
               <i class="fa-solid fa-trophy"></i> 26년 최다 조회수
@@ -770,7 +847,7 @@
 
   <script>
     let allDates = []; 
-    let currentTabType = 'top'; // 현재 활성화된 탭 타입 ('top' or 'rising')
+    let currentTabType = 'top'; 
 
     const dateListEl = document.getElementById('dateList');
     const contentGridEl = document.getElementById('contentGrid');
@@ -787,6 +864,11 @@
 
     const imageModalEl = document.getElementById('imageModal');
     const modalImgEl = document.getElementById('modalImg');
+
+    // 비디오 예외 처리 제어 요소
+    const shortsVideoEl = document.getElementById('shortsVideo');
+    const videoWrapperEl = document.getElementById('videoWrapper');
+    const videoPlaceholderEl = document.getElementById('videoPlaceholder');
 
     // 1. 생성 이력 로드
     async function loadDates() {
@@ -866,6 +948,27 @@
         coverImgEl.src = data.coverUrl || '';
         contentImgEl.src = data.contentUrl || '';
 
+        // 숏폼 비디오 미리보기 로드 예외 처리 
+        if (data.videoUrl) {
+          shortsVideoEl.querySelector('source').src = data.videoUrl;
+          shortsVideoEl.load();
+          
+          // 비디오 로딩 검사 (에러 시 플레이스홀더 노출 처리)
+          shortsVideoEl.onerror = () => {
+            videoWrapperEl.style.display = 'none';
+            videoPlaceholderEl.style.display = 'flex';
+          };
+          shortsVideoEl.oncanplay = () => {
+            videoWrapperEl.style.display = 'block';
+            videoPlaceholderEl.style.display = 'none';
+          };
+        } else {
+          shortsVideoEl.querySelector('source').src = '';
+          shortsVideoEl.load();
+          videoWrapperEl.style.display = 'none';
+          videoPlaceholderEl.style.display = 'flex';
+        }
+
         const ytStatusCard = document.getElementById('ytStatusCard');
         const ytStatusText = document.getElementById('ytStatusText');
         if (data.videoUrl) {
@@ -884,7 +987,7 @@
       }
     }
 
-    // 3. 유튜브 쇼츠 벤치마킹 목록 로드 (탭 종류 전달받아 스위칭)
+    // 3. 유튜브 쇼츠 벤치마킹 목록 로드
     async function loadBenchmarkShorts(type = 'top') {
       try {
         const response = await fetch(`/api/benchmark-shorts?type=${type}`);
@@ -919,7 +1022,6 @@
     function switchBenchmarkTab(type) {
       currentTabType = type;
       
-      // 버튼 활성화 클래스 토글
       if (type === 'top') {
         document.getElementById('tabTop').classList.add('active-tab');
         document.getElementById('tabRising').classList.remove('active-tab');
@@ -1001,7 +1103,7 @@
     }
 
     loadDates();
-    loadBenchmarkShorts('top'); // 최초 기동 시 'top' 최다 조회수 기본 로드
+    loadBenchmarkShorts('top');
   </script>
 </body>
 </html>
