@@ -10,14 +10,14 @@
   
   <style>
     :root {
-      --bg-light: #f6f8fa; /* 밝고 편안한 바탕색 */
-      --panel-light: #ffffff; /* 순백색 패널 */
-      --accent-color: #c9a029; /* 한층 더 가독성 높인 딥 골드 */
+      --bg-light: #f6f8fa;
+      --panel-light: #ffffff;
+      --accent-color: #c9a029;
       --accent-dim: rgba(201, 160, 41, 0.06);
       --accent-border: rgba(201, 160, 41, 0.2);
-      --text-main: #24292f; /* 시인성이 우수한 흑연색 */
-      --text-muted: #6e7781; /* 옅은 서브 글씨색 */
-      --card-border: #e1e4e8; /* 얇고 정돈된 그레이 보더 */
+      --text-main: #24292f;
+      --text-muted: #6e7781;
+      --card-border: #e1e4e8;
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
       --shadow-md: 0 8px 24px rgba(149, 157, 165, 0.12);
       --border-radius: 12px;
@@ -37,7 +37,7 @@
       display: flex;
     }
 
-    /* 1. 좌측 사이드바 (1 & 2번 영역) */
+    /* 1. 좌측 사이드바 */
     aside {
       width: 340px;
       background-color: var(--panel-light);
@@ -59,7 +59,6 @@
       gap: 10px;
     }
 
-    /* 1번 카테고리 필터 영역 */
     .filter-section {
       display: flex;
       flex-direction: column;
@@ -85,7 +84,6 @@
       border-color: var(--accent-color);
     }
 
-    /* 2번 날짜 목록 영역 */
     .list-section {
       display: flex;
       flex-direction: column;
@@ -184,7 +182,7 @@
       font-weight: 600;
     }
 
-    /* 3번 채널별 업로드 현황 구획 */
+    /* 채널별 업로드 현황 */
     .status-panel {
       display: flex;
       gap: 15px;
@@ -232,11 +230,11 @@
     /* 대시보드 2단 배치 */
     .content-grid {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1.15fr 0.85fr;
       gap: 35px;
     }
 
-    /* 카드 껍데기 공통 */
+    /* 카드 패널 공통 */
     .dashboard-panel {
       background-color: var(--panel-light);
       border: 1px solid var(--card-border);
@@ -257,7 +255,6 @@
       margin-bottom: 5px;
     }
 
-    /* 4번 미디어 및 본문 확인 */
     .img-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -290,7 +287,6 @@
       object-fit: cover;
     }
 
-    /* 4번 텍스트 상세 영역 */
     .txt-group {
       display: flex;
       flex-direction: column;
@@ -336,15 +332,23 @@
       color: var(--accent-color);
     }
 
-    /* 5번 수동 제어 패널 구획 */
-    .manual-panel {
-      grid-column: 1 / -1; /* 메인 하단 전체를 넓게 사용 */
+    /* 하단 2분할 레이아웃 (수동 생성 폼 + 유튜브 벤치마크) */
+    .bottom-layout {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 35px;
     }
 
     .manual-form {
       display: flex;
+      flex-direction: column;
       gap: 15px;
-      align-items: flex-end;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 15px;
     }
 
     .form-group {
@@ -388,14 +392,67 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      height: 46px;
+      justify-content: center;
+      width: 100%;
     }
 
     .submit-btn:hover {
       background-color: #b58c20;
     }
 
-    /* 확대 라이트박스 */
+    /* 벤치마킹 테이블 목록 */
+    .benchmark-table-wrapper {
+      max-height: 250px;
+      overflow-y: auto;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+    }
+
+    .benchmark-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .benchmark-table th, .benchmark-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .benchmark-table th {
+      background-color: var(--bg-light);
+      font-weight: 600;
+      color: var(--text-muted);
+      position: sticky;
+      top: 0;
+    }
+
+    .benchmark-table tbody tr {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .benchmark-table tbody tr:hover {
+      background-color: var(--accent-dim);
+    }
+
+    .hot-badge {
+      background-color: #e74c3c;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-left: 5px;
+    }
+
+    .views-badge {
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+
+    /* 라이트박스 */
     .modal {
       display: none;
       position: fixed;
@@ -417,7 +474,6 @@
       max-width: 80%;
       max-height: 80%;
       border-radius: 8px;
-      box-shadow: var(--shadow-md);
       border: 2px solid #fff;
     }
 
@@ -448,7 +504,7 @@
       <span>SAJU MANAGEMENT</span>
     </div>
     
-    <!-- 1번 카테고리 필터 설정 -->
+    <!-- 카테고리 필터 -->
     <div class="filter-section">
       <div class="nav-title"><i class="fa-solid fa-sliders"></i> 카테고리 필터 설정</div>
       <select class="filter-select" id="categoryFilter" onchange="filterDates()">
@@ -465,16 +521,16 @@
       </select>
     </div>
 
-    <!-- 2번 생성 목록 -->
+    <!-- 생성 목록 -->
     <div class="list-section">
       <div class="nav-title"><i class="fa-solid fa-history"></i> 주제별 업로드 내역</div>
       <ul class="date-list" id="dateList">
-        <!-- 동적 리스트 기입 -->
+        <!-- 동적 주입 -->
       </ul>
     </div>
   </aside>
 
-  <!-- 2. 메인 대시보드 (업로드 현황, 본문 확인, 수동 생성) -->
+  <!-- 2. 메인 대시보드 -->
   <main>
     <header>
       <div>
@@ -482,7 +538,6 @@
         <div class="header-sub">선택된 날짜: <span id="selectedDateText">-</span></div>
       </div>
       
-      <!-- 3번 채널별 업로드 현황 -->
       <div class="status-panel">
         <div class="status-card success">
           <i class="fa-brands fa-instagram"></i>
@@ -508,7 +563,7 @@
       </div>
     </header>
 
-    <!-- 메인 대시보드 디스플레이 그리드 -->
+    <!-- 대시보드 그리드 -->
     <div class="content-grid" id="contentGrid" style="display: none;">
       
       <!-- 좌측: 카드뉴스 미디어 프리뷰 -->
@@ -530,7 +585,7 @@
         </div>
       </div>
 
-      <!-- 우측: 4번 썸네일 & 본문 내용 상세 -->
+      <!-- 우측: 카피 및 본문 상세 -->
       <div class="dashboard-panel">
         <div class="panel-title">배포 카피 및 본문 상세</div>
         
@@ -556,71 +611,99 @@
         </div>
       </div>
 
-      <!-- 5번 수동 주제 콘텐츠 즉시 생성 패널 -->
-      <div class="dashboard-panel manual-panel">
-        <div class="panel-title">수동 콘텐츠 즉시 생성 제어 (Manual Generation)</div>
-        <div class="manual-form">
-          <div class="form-group" style="max-width: 250px;">
-            <span class="form-label">원하는 사주 대주제 카테고리</span>
-            <select class="form-select" id="manualTopic">
-              <option value="사주팔자">사주팔자</option>
-              <option value="인연운">인연운</option>
-              <option value="가족/자녀운">가족/자녀운</option>
-              <option value="인간관계">인간관계</option>
-              <option value="금전/재물운">금전/재물운</option>
-              <option value="직업/사업/이직운">직업/사업/이직운</option>
-              <option value="건강운">건강운</option>
-              <option value="오늘의 운세">오늘의 운세</option>
-              <option value="띠별 운세">띠별 운세</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <span class="form-label">생성 기준 날짜 (기본값 오늘)</span>
-            <input type="date" class="form-input" id="manualDate">
-          </div>
+      <!-- 하단 레이아웃 (수동 생성 폼 + 유튜브 벤치마크) -->
+      <div class="bottom-layout">
+        
+        <!-- 수동 제어 패널 -->
+        <div class="dashboard-panel">
+          <div class="panel-title">수동 콘텐츠 생성 및 재생산</div>
+          <div class="manual-form">
+            <div class="form-row">
+              <div class="form-group" style="max-width: 200px;">
+                <span class="form-label">사주 주제 선택</span>
+                <select class="form-select" id="manualTopic">
+                  <option value="사주팔자">사주팔자</option>
+                  <option value="인연운">인연운</option>
+                  <option value="가족/자녀운">가족/자녀운</option>
+                  <option value="인간관계">인간관계</option>
+                  <option value="금전/재물운">금전/재물운</option>
+                  <option value="직업/사업/이직운">직업/사업/이직운</option>
+                  <option value="건강운">건강운</option>
+                  <option value="오늘의 운세">오늘의 운세</option>
+                  <option value="띠별 운세">띠별 운세</option>
+                </select>
+              </div>
+              <div class="form-group" style="max-width: 200px;">
+                <span class="form-label">발행 기준 일자</span>
+                <input type="date" class="form-input" id="manualDate">
+              </div>
+            </div>
 
-          <button class="submit-btn" onclick="triggerManualGeneration()">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> 즉시 콘텐츠 생성 & 배포
-          </button>
+            <div class="form-group">
+              <span class="form-label">썸네일 표지 문구 직접 지정 (공란 시 AI가 자동 생성)</span>
+              <input type="text" class="form-input" id="manualTitle" placeholder="예: 사주에 '이 글자' 있으면 대박 납니다">
+            </div>
+
+            <button class="submit-btn" onclick="triggerManualGeneration()">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> 즉시 콘텐츠 생성 & 배포
+            </button>
+          </div>
         </div>
+
+        <!-- 벤치마킹 쇼츠 리스트 -->
+        <div class="dashboard-panel">
+          <div class="panel-title">유튜브 인기 쇼츠 벤치마킹 (클릭 시 자동완성)</div>
+          <div class="benchmark-table-wrapper">
+            <table class="benchmark-table">
+              <thead>
+                <tr>
+                  <th>카테고리</th>
+                  <th>인기 쇼츠 카피 제목 (조회수)</th>
+                </tr>
+              </thead>
+              <tbody id="benchmarkBody">
+                <!-- 동적 벤치마킹 리스트 로드 -->
+              </tbody>
+            </table>
+          </div>
+          <div class="label-tag" style="text-align: left; font-size:11px;">※ 목록 중 가장 반응이 뜨거웠던 문구를 클릭하면 수동 폼에 입력값이 즉시 자동완성됩니다.</div>
+        </div>
+
       </div>
 
     </div>
 
-    <!-- 미선택 비어있음 경고 -->
     <div class="empty-state" id="emptyState">
       좌측 카테고리 필터링을 설정하거나 내역 목록에서 일자를 선택하여 주세요.
     </div>
   </main>
 
-  <!-- 라이트박스 확대 모달 -->
+  <!-- 라이트박스 -->
   <div class="modal" id="imageModal" onclick="closeModal()">
     <span class="close-modal">&times;</span>
     <img class="modal-content" id="modalImg" src="" alt="확대 이미지" onclick="event.stopPropagation()">
   </div>
 
   <script>
-    let allDates = []; // 전체 날짜 목록 보관 버퍼
+    let allDates = []; 
 
     const dateListEl = document.getElementById('dateList');
     const contentGridEl = document.getElementById('contentGrid');
     const emptyStateEl = document.getElementById('emptyState');
     const selectedDateTextEl = document.getElementById('selectedDateText');
     const categoryFilterEl = document.getElementById('categoryFilter');
+    const benchmarkBodyEl = document.getElementById('benchmarkBody');
 
-    // 리프레시 요소
     const coverImgEl = document.getElementById('coverImg');
     const contentImgEl = document.getElementById('contentImg');
     const topicTextEl = document.getElementById('topicText');
     const thumbnailTextEl = document.querySelector('#thumbnailText .copy-content');
     const captionTextEl = document.querySelector('#captionText .copy-content');
 
-    // 모달 요소
     const imageModalEl = document.getElementById('imageModal');
     const modalImgEl = document.getElementById('modalImg');
 
-    // 1. 생성 이력 데이터 로드
+    // 1. 생성 이력 로드
     async function loadDates() {
       try {
         const response = await fetch('/api/dates');
@@ -634,7 +717,6 @@
           allDates.push({ date, topic: info.topic });
         }
 
-        // 수동 생성 시 오늘 날짜 기본 기입
         const todayStr = new Date().toISOString().split('T')[0];
         document.getElementById('manualDate').value = todayStr;
 
@@ -644,11 +726,11 @@
       }
     }
 
-    // 2. 날짜 리스트 그리기
+    // 2. 날짜 리스트 드로잉
     function renderDateList(list) {
       dateListEl.innerHTML = '';
       if (list.length === 0) {
-        dateListEl.innerHTML = '<li class="empty-state" style="padding: 20px 0; font-size:12px;">조건에 부합하는 내역 없음</li>';
+        dateListEl.innerHTML = '<li class="empty-state" style="padding: 20px 0; font-size:12px;">내역이 존재하지 않습니다.</li>';
         return;
       }
 
@@ -662,14 +744,13 @@
         li.onclick = () => selectDate(item.date, li);
         dateListEl.appendChild(li);
 
-        // 첫 번째 아이템 자동 활성화
         if (index === 0) {
           selectDate(item.date, li);
         }
       });
     }
 
-    // 1번 카테고리 필터링 액션 (동적 필터 적용)
+    // 카테고리 필터링
     function filterDates() {
       const selectedCategory = categoryFilterEl.value;
       if (selectedCategory === 'ALL') {
@@ -680,7 +761,7 @@
       }
     }
 
-    // 2번 선택 아이템 상세 로드
+    // 상세 내용 세부 로드
     async function selectDate(date, element) {
       document.querySelectorAll('.date-item').forEach(item => item.classList.remove('active'));
       if (element) element.classList.add('active');
@@ -700,7 +781,6 @@
         coverImgEl.src = data.coverUrl || '';
         contentImgEl.src = data.contentUrl || '';
 
-        // 유튜브 배포 정보 상태 갱신
         const ytStatusCard = document.getElementById('ytStatusCard');
         const ytStatusText = document.getElementById('ytStatusText');
         if (data.videoUrl) {
@@ -715,14 +795,50 @@
       } catch (err) {
         console.error(err);
         emptyStateEl.style.display = 'block';
-        emptyStateEl.textContent = '콘텐츠 상세 내역 로드 오류';
+        emptyStateEl.textContent = '콘텐츠 상세 데이터 로드 오류';
       }
     }
 
-    // 5번 수동 콘텐츠 즉시 생성 트리거 (API POST 전송)
+    // 3. 유튜브 쇼츠 벤치마킹 목록 로드
+    async function loadBenchmarkShorts() {
+      try {
+        const response = await fetch('/api/benchmark-shorts');
+        const list = await response.json();
+        
+        benchmarkBodyEl.innerHTML = '';
+        
+        list.forEach(item => {
+          const tr = document.createElement('tr');
+          // 클릭 시 수동생성 폼으로 텍스트 및 주제가 복사되는 원클릭 핸들러
+          tr.onclick = () => fillManualForm(item.topic, item.title);
+          
+          tr.innerHTML = `
+            <td><span class="topic-badge">${item.topic}</span></td>
+            <td>
+              <strong>${item.title}</strong>
+              <span class="hot-badge">HOT</span><br>
+              <span class="views-badge"><i class="fa-solid fa-fire"></i> 조회수: ${item.views}</span>
+            </td>
+          `;
+          benchmarkBodyEl.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('쇼츠 데이터 로드 오류:', err);
+      }
+    }
+
+    // 원클릭 자동완성 (Auto-Fill)
+    function fillManualForm(topic, title) {
+      document.getElementById('manualTopic').value = topic;
+      document.getElementById('manualTitle').value = title;
+      alert(`[자동완성] 카테고리 [${topic}]와 썸네일 카피가 정상 주입되었습니다!`);
+    }
+
+    // 수동 콘텐츠 전송
     async function triggerManualGeneration() {
       const topic = document.getElementById('manualTopic').value;
       const date = document.getElementById('manualDate').value;
+      const customTitle = document.getElementById('manualTitle').value;
 
       if (!topic) {
         alert('주제를 골라주세요.');
@@ -732,9 +848,8 @@
       const submitBtn = document.querySelector('.submit-btn');
       const originalHtml = submitBtn.innerHTML;
       
-      // 로딩 상태 피드백
       submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 콘텐츠 생성 및 배포 중...';
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 콘텐츠 자동 생성 및 배포 중...';
 
       try {
         const response = await fetch('/api/generate-manual', {
@@ -742,21 +857,20 @@
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ topic, date })
+          body: JSON.stringify({ topic, date, customTitle })
         });
         
         const resData = await response.json();
 
         if (resData.success) {
-          alert(`성공: [${topic}] 주제 콘텐츠가 성공적으로 생성 및 배포되었습니다!`);
-          // 생성 완료 후 목록 리로드 및 해당 날짜 자동 로드
+          alert(`성공: [${topic}] 주제 콘텐츠가 즉시 생성되었습니다!`);
           await loadDates();
         } else {
           alert(`실패: ${resData.error}`);
         }
       } catch (err) {
         console.error(err);
-        alert('서버 전송 중 통신 오류가 발생했습니다.');
+        alert('서버 통신 오류 발생');
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalHtml;
@@ -767,7 +881,7 @@
     function copyToClipboard(elementId) {
       const text = document.querySelector(`#${elementId} .copy-content`).textContent;
       navigator.clipboard.writeText(text).then(() => {
-        alert('클립보드에 복사 완료!');
+        alert('클립보드 복사 완료!');
       });
     }
 
@@ -782,6 +896,7 @@
     }
 
     loadDates();
+    loadBenchmarkShorts(); // 쇼츠 리스트 실행
   </script>
 </body>
 </html>
