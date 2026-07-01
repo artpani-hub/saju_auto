@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/artpani-hub/saju_auto#readme",
   "dependencies": {
-    "@napi-rs/canvas": "^1.0.2"
+    "@napi-rs/canvas": "^1.0.2",
+    "node-cron": "^4.5.0"
   }
 }
