@@ -5,25 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>사주 자동 업로드 봇 - 로컬 대시보드</title>
   <!-- Google Fonts & FontAwesome -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
     :root {
-      --bg-dark: #0a0a0f;
-      --panel-dark: #12121e;
-      --accent-color: #d4af37; /* 골드 */
-      --accent-dim: rgba(212, 175, 55, 0.15);
-      --text-main: #f3f3f7;
-      --text-muted: #8c8c9e;
-      --border-color: rgba(212, 175, 55, 0.2);
+      --bg-dark: #07070b; /* 더 짙은 심연의 블랙 */
+      --panel-dark: #0f0f18; /* 감각적인 스페이스 다크 네이비 */
+      --accent-color: #e5c158; /* 세련된 샹판 골드 */
+      --accent-dim: rgba(229, 193, 88, 0.08);
+      --accent-border: rgba(229, 193, 88, 0.18);
+      --text-main: #f5f5fa;
+      --text-muted: #828292;
       --card-bg: rgba(255, 255, 255, 0.02);
-      
-      /* 주제별 테마 뱃지 색상 */
-      --theme-color-saju: #d4af37;
-      --theme-color-love: #ff6b8b;
-      --theme-color-money: #f39c12;
-      --theme-color-job: #1abc9c;
+      --card-border: rgba(255, 255, 255, 0.04);
+      --glass-bg: rgba(15, 15, 24, 0.7);
+      --border-radius: 16px;
     }
 
     * {
@@ -38,40 +35,42 @@
       font-family: 'Outfit', 'Noto Sans KR', sans-serif;
       min-height: 100vh;
       display: flex;
+      overflow: hidden;
     }
 
-    /* 1. 좌측 사이드바 (날짜 목록) */
+    /* 1. 좌측 사이드바 */
     aside {
-      width: 300px;
+      width: 320px;
       background-color: var(--panel-dark);
-      border-right: 1px solid var(--border-color);
+      border-right: 1px solid var(--accent-border);
       display: flex;
       flex-direction: column;
-      padding: 30px 20px;
+      padding: 40px 24px;
       flex-shrink: 0;
     }
 
     .logo {
-      font-size: 20px;
+      font-size: 21px;
       font-weight: 700;
       color: var(--accent-color);
       letter-spacing: 1.5px;
-      margin-bottom: 40px;
+      margin-bottom: 45px;
       display: flex;
       align-items: center;
       gap: 12px;
+      text-shadow: 0 0 12px rgba(229, 193, 88, 0.2);
     }
 
     .logo i {
-      font-size: 24px;
+      font-size: 22px;
     }
 
     .nav-title {
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 2.5px;
+      letter-spacing: 3px;
       color: var(--text-muted);
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       font-weight: 600;
       padding-left: 5px;
     }
@@ -83,79 +82,84 @@
       gap: 12px;
       overflow-y: auto;
       flex-grow: 1;
+      padding-right: 4px;
     }
 
     .date-item {
-      padding: 15px 20px;
+      padding: 18px 20px;
       background-color: var(--card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      border-radius: var(--border-radius);
       cursor: pointer;
       font-weight: 500;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .date-item:hover {
       border-color: var(--accent-color);
-      background-color: rgba(212, 175, 55, 0.04);
-      transform: translateX(4px);
+      background-color: var(--accent-dim);
+      transform: translateY(-2px);
     }
 
     .date-item.active {
       background-color: var(--accent-color);
-      color: #0f0f15;
+      color: #050508;
       font-weight: 700;
       border-color: var(--accent-color);
+      box-shadow: 0 8px 20px rgba(229, 193, 88, 0.25);
     }
 
     .date-item .date-val {
-      font-size: 16px;
+      font-size: 15px;
+      letter-spacing: 0.5px;
     }
 
     .date-item .topic-badge {
       align-self: flex-start;
       font-size: 10px;
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: 20px;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.06);
       color: var(--text-muted);
       font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     .date-item.active .topic-badge {
-      background-color: rgba(0, 0, 0, 0.85);
+      background-color: rgba(0, 0, 0, 0.8);
       color: var(--accent-color);
     }
 
-    /* 2. 메인 콘텐츠 대시보드 */
+    /* 2. 메인 대시보드 컨테이너 */
     main {
       flex-grow: 1;
-      padding: 40px 60px;
+      padding: 45px 55px;
       display: flex;
       flex-direction: column;
       overflow-y: auto;
     }
 
     header {
-      margin-bottom: 35px;
+      margin-bottom: 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       padding-bottom: 25px;
     }
 
     h1 {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 700;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
     }
 
     .selected-title {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--text-muted);
     }
 
@@ -164,80 +168,93 @@
       font-weight: 600;
     }
 
-    /* 채널 배포 상태 */
+    /* 채널 배포 상태 뱃지 목록 */
     .status-container {
       display: flex;
-      gap: 15px;
+      gap: 12px;
     }
 
     .status-badge {
-      padding: 8px 16px;
+      padding: 10px 18px;
       background: var(--panel-dark);
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 12px;
-      font-size: 13px;
+      font-size: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-weight: 500;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     .status-badge i {
-      font-size: 15px;
+      font-size: 14px;
     }
 
-    .status-badge.success { color: #2ecc71; border-color: rgba(46, 204, 113, 0.3); }
-    .status-badge.pending { color: #f1c40f; border-color: rgba(241, 196, 15, 0.3); }
+    .status-badge.success { 
+      color: #2ecc71; 
+      border-color: rgba(46, 204, 113, 0.25); 
+      background-color: rgba(46, 204, 113, 0.03);
+    }
+    
+    .status-badge.pending { 
+      color: #f1c40f; 
+      border-color: rgba(241, 196, 15, 0.25); 
+      background-color: rgba(241, 196, 15, 0.03);
+    }
 
-    /* 대시보드 그리드 레이아웃 */
+    /* 대시보드 2단 레이아웃 */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 40px;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 45px;
       flex-grow: 1;
     }
 
-    /* 좌측: 미디어 프리뷰 카드뉴스 & 동영상 */
+    /* 좌측: 카드뉴스 피드 및 숏폼 영상 */
     .media-column {
       display: flex;
       flex-direction: column;
-      gap: 30px;
+      gap: 35px;
     }
 
     .section-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: var(--accent-color);
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       display: flex;
       align-items: center;
       gap: 10px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
 
     .media-card-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 25px;
     }
 
     .media-preview-box {
       background-color: var(--panel-dark);
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      padding: 20px;
+      border: 1px solid var(--card-border);
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
     .img-wrapper {
       position: relative;
       width: 100%;
       padding-top: 100%;
-      background-color: #000;
+      background-color: #050508;
       border-radius: 12px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       cursor: zoom-in;
     }
 
@@ -248,40 +265,42 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.4s ease;
+      transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
     .img-wrapper:hover img {
-      transform: scale(1.03);
+      transform: scale(1.04);
     }
 
     .label-tag {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--text-muted);
       text-align: center;
+      letter-spacing: 0.5px;
     }
 
-    /* 유튜브 쇼츠 플레이어 영역 */
+    /* 비디오 플레이어 카드 */
     .video-preview-box {
       background-color: var(--panel-dark);
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      padding: 25px;
+      border: 1px solid var(--card-border);
+      padding: 30px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 15px;
+      gap: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
     .video-container {
-      width: 250px;
-      height: 444px; /* 9:16 비디오 비율 */
+      width: 240px;
+      height: 426px; /* 9:16 비디오 고정비율 */
       background-color: #000;
       border-radius: 16px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
     .video-container video {
@@ -290,71 +309,79 @@
       object-fit: cover;
     }
 
-    /* 우측: 텍스트 정보 및 카피 클립보드 */
+    /* 우측: 텍스트 정보 및 빠른 복사 */
     .info-column {
       display: flex;
       flex-direction: column;
-      gap: 30px;
+      gap: 35px;
     }
 
     .text-card {
       background-color: var(--panel-dark);
       border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      padding: 30px;
+      border: 1px solid var(--card-border);
+      padding: 35px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
     .input-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     label {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--accent-color);
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
     }
 
     .text-display-box {
-      background-color: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background-color: rgba(255, 255, 255, 0.015);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 12px;
-      padding: 16px;
-      font-size: 15px;
-      line-height: 1.6;
-      color: var(--text-main);
+      padding: 20px;
+      font-size: 14px;
+      line-height: 1.65;
+      color: #e2e2e9;
       white-space: pre-wrap;
       position: relative;
-      min-height: 100px;
+      min-height: 80px;
+      transition: border-color 0.2s ease;
+    }
+
+    .text-display-box:hover {
+      border-color: rgba(229, 193, 88, 0.2);
     }
 
     .copy-btn {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      background-color: rgba(212, 175, 55, 0.15);
-      border: 1px solid var(--accent-color);
+      top: 12px;
+      right: 12px;
+      background-color: var(--accent-dim);
+      border: 1px solid var(--accent-border);
       color: var(--accent-color);
       border-radius: 6px;
-      padding: 5px 10px;
+      padding: 5px 12px;
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      backdrop-filter: blur(4px);
     }
 
     .copy-btn:hover {
       background-color: var(--accent-color);
-      color: #0f0f15;
+      color: #050508;
+      border-color: var(--accent-color);
     }
 
-    /* 확대 모달 */
+    /* 라이트박스 확대 모달 */
     .modal {
       display: none;
       position: fixed;
@@ -362,7 +389,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(5, 5, 8, 0.95);
+      background-color: rgba(4, 4, 6, 0.96);
       z-index: 1000;
       justify-content: center;
       align-items: center;
@@ -376,11 +403,11 @@
     }
 
     .modal-content {
-      max-width: 85%;
-      max-height: 85%;
+      max-width: 80%;
+      max-height: 80%;
       border-radius: 12px;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 10px 60px rgba(0, 0, 0, 0.8);
+      border: 1px solid var(--accent-border);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
     }
 
     .close-modal {
@@ -390,6 +417,7 @@
       font-size: 40px;
       color: #fff;
       cursor: pointer;
+      transition: color 0.2s ease;
     }
 
     .close-modal:hover {
@@ -398,9 +426,25 @@
 
     .empty-state {
       text-align: center;
-      padding: 150px 0;
+      padding: 180px 0;
       color: var(--text-muted);
-      font-size: 18px;
+      font-size: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    /* 스크롤바 정돈 */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-color);
     }
   </style>
 </head>
@@ -409,8 +453,8 @@
   <!-- 1. 좌측 사이드바 -->
   <aside>
     <div class="logo">
-      <i class="fa-solid fa-moon-astronomy"></i>
-      <span>SAJU ROTATOR ✦</span>
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+      <span>SAJU ROTATOR</span>
     </div>
     
     <div class="nav-title">생성 내역 일자</div>
@@ -471,7 +515,6 @@
           <div class="section-title"><i class="fa-solid fa-clapperboard"></i> 렌더링 숏폼 비디오 (9:16)</div>
           <div class="video-preview-box">
             <div class="video-container">
-              <!-- 비디오 요소 (소스는 동적 바인딩) -->
               <video id="shortsVideo" controls loop>
                 <source src="" type="video/mp4">
                 브라우저가 비디오 재생을 지원하지 않습니다.
@@ -556,7 +599,6 @@
         }
 
         for (const date of dates) {
-          // 날짜별 상세 메타정보를 함께 조회해와서 리스트 뱃지 표시
           const infoRes = await fetch(`/api/images/${date}`);
           const info = await infoRes.json();
 
@@ -627,6 +669,7 @@
     function copyText(elementId) {
       const text = document.querySelector(`#${elementId} .text-content`).textContent;
       navigator.clipboard.writeText(text).then(() => {
+        // 커스텀 알림이 없으므로 일시적 alert 창 활용
         alert('클립보드에 복사되었습니다!');
       });
     }
