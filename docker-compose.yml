@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  saju-bot:
+    container_name: saju-fortune-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # 컨테이너 내 생성된 이미지 파일을 호스트(로컬 PC)에서 바로 볼 수 있도록 볼륨 공유
+    volumes:
+      - ./output:/usr/src/app/output
+    # 향후 환경 변수 설정(API 키 등)이 필요할 경우를 위해 env 파일 지정 준비
+    # env_file:
+    #   - .env
