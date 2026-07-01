@@ -400,9 +400,39 @@
       background-color: #b58c20;
     }
 
+    /* 탭 헤더 스타일 추가 */
+    .tab-header {
+      display: flex;
+      border-bottom: 2px solid var(--card-border);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tab-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active-tab {
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+    }
+
     /* 벤치마킹 테이블 목록 고정 레이아웃 */
     .benchmark-table-wrapper {
-      max-height: 250px;
+      max-height: 230px;
       overflow-y: auto;
       border: 1px solid var(--card-border);
       border-radius: 8px;
@@ -413,18 +443,17 @@
       border-collapse: collapse;
       font-size: 13px;
       text-align: left;
-      table-layout: fixed; /* 테이블 가로 너비 강제 고정 */
+      table-layout: fixed;
     }
 
     .benchmark-table th, .benchmark-table td {
       padding: 12px 15px;
       border-bottom: 1px solid var(--card-border);
-      word-wrap: break-word; /* 긴 텍스트 줄바꿈 강제 */
+      word-wrap: break-word;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    /* 각 열의 너비 비율 고정 지정 */
     .col-category {
       width: 80px;
     }
@@ -469,7 +498,7 @@
       font-weight: 600;
     }
 
-    /* 유튜브 이동 링크 버튼 디자인 고도화 */
+    /* 유튜브 이동 링크 버튼 디자인 */
     .yt-link-btn {
       display: inline-flex;
       align-items: center;
@@ -654,7 +683,7 @@
         </div>
       </div>
 
-      <!-- 하단 레이아웃 (수동 생성 폼 + 유튜브 벤치마크) -->
+      <!-- 하단 레이아웃 (수동 생성 폼 + 유튜브 벤치마크 2개 탭 구성) -->
       <div class="bottom-layout">
         
         <!-- 수동 제어 패널 -->
@@ -693,9 +722,20 @@
           </div>
         </div>
 
-        <!-- 벤치마킹 쇼츠 리스트 (가로 너비 고정) -->
+        <!-- 벤치마킹 쇼츠 리스트 (탭 2분할 토글 구성) -->
         <div class="dashboard-panel">
-          <div class="panel-title">유튜브 인기 쇼츠 벤치마킹 (클릭 시 자동완성)</div>
+          <div class="panel-title">유튜브 사주 트렌드 벤치마킹</div>
+          
+          <!-- 탭 구조 버튼 -->
+          <div class="tab-header">
+            <button class="tab-btn active-tab" id="tabTop" onclick="switchBenchmarkTab('top')">
+              <i class="fa-solid fa-trophy"></i> 26년 최다 조회수
+            </button>
+            <button class="tab-btn" id="tabRising" onclick="switchBenchmarkTab('rising')">
+              <i class="fa-solid fa-arrow-trend-up"></i> 인기 급상승 라이징
+            </button>
+          </div>
+
           <div class="benchmark-table-wrapper">
             <table class="benchmark-table">
               <thead>
@@ -710,7 +750,7 @@
               </tbody>
             </table>
           </div>
-          <div class="label-tag" style="text-align: left; font-size:11px;">※ 행을 클릭하면 수동 폼에 자동 입력되며, 우측 빨간색 버튼을 누르면 유튜브 원본 영상 주소로 즉각 이동합니다.</div>
+          <div class="label-tag" style="text-align: left; font-size:11px;">※ 목록 행 클릭 시 입력란에 자동 주입되며, 우측 빨간색 버튼 클릭 시 유튜브 검색 피드로 바로 이동합니다.</div>
         </div>
 
       </div>
@@ -730,6 +770,7 @@
 
   <script>
     let allDates = []; 
+    let currentTabType = 'top'; // 현재 활성화된 탭 타입 ('top' or 'rising')
 
     const dateListEl = document.getElementById('dateList');
     const contentGridEl = document.getElementById('contentGrid');
@@ -843,10 +884,10 @@
       }
     }
 
-    // 3. 유튜브 쇼츠 벤치마킹 목록 로드
-    async function loadBenchmarkShorts() {
+    // 3. 유튜브 쇼츠 벤치마킹 목록 로드 (탭 종류 전달받아 스위칭)
+    async function loadBenchmarkShorts(type = 'top') {
       try {
-        const response = await fetch('/api/benchmark-shorts');
+        const response = await fetch(`/api/benchmark-shorts?type=${type}`);
         const list = await response.json();
         
         benchmarkBodyEl.innerHTML = '';
@@ -858,7 +899,7 @@
           tr.innerHTML = `
             <td><span class="topic-badge" style="display:inline-block; max-width:70px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.topic}</span></td>
             <td>
-              <div style="font-weight:600; line-height:1.4; margin-bottom:4px;">${item.title} <span class="hot-badge">HOT</span></div>
+              <div style="font-weight:600; line-height:1.4; margin-bottom:4px;">${item.title} <span class="hot-badge">${type === 'top' ? 'TOP' : 'NEW'}</span></div>
               <span class="views-badge"><i class="fa-solid fa-fire"></i> ${item.views}</span>
             </td>
             <td style="text-align: center; vertical-align: middle;">
@@ -872,6 +913,22 @@
       } catch (err) {
         console.error('쇼츠 데이터 로드 오류:', err);
       }
+    }
+
+    // 탭 버튼 클릭 전환 핸들러
+    function switchBenchmarkTab(type) {
+      currentTabType = type;
+      
+      // 버튼 활성화 클래스 토글
+      if (type === 'top') {
+        document.getElementById('tabTop').classList.add('active-tab');
+        document.getElementById('tabRising').classList.remove('active-tab');
+      } else {
+        document.getElementById('tabRising').classList.add('active-tab');
+        document.getElementById('tabTop').classList.remove('active-tab');
+      }
+      
+      loadBenchmarkShorts(type);
     }
 
     // 원클릭 자동완성 (Auto-Fill)
@@ -944,7 +1001,7 @@
     }
 
     loadDates();
-    loadBenchmarkShorts();
+    loadBenchmarkShorts('top'); // 최초 기동 시 'top' 최다 조회수 기본 로드
   </script>
 </body>
 </html>
