@@ -400,7 +400,7 @@
       background-color: #b58c20;
     }
 
-    /* 벤치마킹 테이블 목록 */
+    /* 벤치마킹 테이블 목록 고정 레이아웃 */
     .benchmark-table-wrapper {
       max-height: 250px;
       overflow-y: auto;
@@ -413,11 +413,27 @@
       border-collapse: collapse;
       font-size: 13px;
       text-align: left;
+      table-layout: fixed; /* 테이블 가로 너비 강제 고정 */
     }
 
     .benchmark-table th, .benchmark-table td {
       padding: 12px 15px;
       border-bottom: 1px solid var(--card-border);
+      word-wrap: break-word; /* 긴 텍스트 줄바꿈 강제 */
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 각 열의 너비 비율 고정 지정 */
+    .col-category {
+      width: 80px;
+    }
+    .col-title {
+      width: auto;
+    }
+    .col-action {
+      width: 80px;
+      text-align: center;
     }
 
     .benchmark-table th {
@@ -426,6 +442,7 @@
       color: var(--text-muted);
       position: sticky;
       top: 0;
+      z-index: 10;
     }
 
     .benchmark-table tbody tr {
@@ -452,24 +469,30 @@
       font-weight: 600;
     }
 
-    /* 유튜브 이동 링크 버튼 스타일 */
+    /* 유튜브 이동 링크 버튼 디자인 고도화 */
     .yt-link-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      background-color: rgba(231, 76, 60, 0.1);
-      color: #e74c3c;
-      border: 1px solid rgba(231, 76, 60, 0.2);
+      background-color: #e74c3c;
+      color: #fff;
+      border: none;
       transition: all 0.2s ease;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
     }
 
     .yt-link-btn:hover {
-      background-color: #e74c3c;
-      color: #fff;
-      transform: scale(1.1);
+      background-color: #c0392b;
+      transform: scale(1.15);
+      box-shadow: 0 4px 10px rgba(231, 76, 60, 0.5);
+    }
+
+    .yt-link-btn i {
+      font-size: 14px;
     }
 
     /* 라이트박스 */
@@ -670,16 +693,16 @@
           </div>
         </div>
 
-        <!-- 벤치마킹 쇼츠 리스트 -->
+        <!-- 벤치마킹 쇼츠 리스트 (가로 너비 고정) -->
         <div class="dashboard-panel">
           <div class="panel-title">유튜브 인기 쇼츠 벤치마킹 (클릭 시 자동완성)</div>
           <div class="benchmark-table-wrapper">
             <table class="benchmark-table">
               <thead>
                 <tr>
-                  <th>카테고리</th>
-                  <th>인기 쇼츠 카피 제목 (조회수)</th>
-                  <th style="width: 70px; text-align: center;">바로가기</th>
+                  <th class="col-category">카테고리</th>
+                  <th class="col-title">인기 쇼츠 카피 제목 (조회수)</th>
+                  <th class="col-action">바로가기</th>
                 </tr>
               </thead>
               <tbody id="benchmarkBody">
@@ -687,7 +710,7 @@
               </tbody>
             </table>
           </div>
-          <div class="label-tag" style="text-align: left; font-size:11px;">※ 행을 클릭하면 수동 폼에 자동 입력되며, <i class="fa-brands fa-youtube" style="color:#e74c3c;"></i> 아이콘을 누르면 유튜브 원본 페이지로 바로 이동하여 직접 확인할 수 있습니다.</div>
+          <div class="label-tag" style="text-align: left; font-size:11px;">※ 행을 클릭하면 수동 폼에 자동 입력되며, 우측 빨간색 버튼을 누르면 유튜브 원본 영상 주소로 즉각 이동합니다.</div>
         </div>
 
       </div>
@@ -833,15 +856,13 @@
           tr.onclick = () => fillManualForm(item.topic, item.title);
           
           tr.innerHTML = `
-            <td><span class="topic-badge">${item.topic}</span></td>
+            <td><span class="topic-badge" style="display:inline-block; max-width:70px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.topic}</span></td>
             <td>
-              <strong>${item.title}</strong>
-              <span class="hot-badge">HOT</span><br>
-              <span class="views-badge"><i class="fa-solid fa-fire"></i> 조회수: ${item.views}</span>
+              <div style="font-weight:600; line-height:1.4; margin-bottom:4px;">${item.title} <span class="hot-badge">HOT</span></div>
+              <span class="views-badge"><i class="fa-solid fa-fire"></i> ${item.views}</span>
             </td>
-            <td style="text-align: center;">
-              <!-- event.stopPropagation()을 주입하여 자동 입력을 방해하지 않고 외부 링크 열기 지원 -->
-              <a href="${item.url}" target="_blank" class="yt-link-btn" onclick="event.stopPropagation();" title="유튜브로 원본 영상 바로 확인하기">
+            <td style="text-align: center; vertical-align: middle;">
+              <a href="${item.url}" target="_blank" class="yt-link-btn" onclick="event.stopPropagation();" title="유튜브로 바로 이동">
                 <i class="fa-brands fa-youtube"></i>
               </a>
             </td>
