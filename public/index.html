@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사주 자동 업로드 봇 - 로컬 대시보드</title>
+  <!-- Google Fonts 로드 -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0f0f15;
+      --panel-dark: #161622;
+      --accent-color: #d4af37; /* 클래식 골드 */
+      --accent-hover: #f3cf65;
+      --text-main: #f0f0f5;
+      --text-muted: #8e8e9f;
+      --border-color: rgba(212, 175, 55, 0.25);
+      --glass-bg: rgba(22, 22, 34, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* 사이드바 영역 */
+    aside {
+      width: 280px;
+      background-color: var(--panel-dark);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 30px 20px;
+      flex-shrink: 0;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent-color);
+      letter-spacing: 1px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-symbol {
+      font-size: 24px;
+    }
+
+    .nav-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .date-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .date-item {
+      padding: 14px 18px;
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .date-item:hover {
+      border-color: var(--accent-color);
+      background-color: rgba(212, 175, 55, 0.05);
+    }
+
+    .date-item.active {
+      background-color: var(--accent-color);
+      color: #0f0f15;
+      font-weight: 700;
+    }
+
+    .date-item.active span {
+      color: #0f0f15;
+    }
+
+    .date-badge {
+      font-size: 11px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 8px;
+      border-radius: 20px;
+      color: var(--text-muted);
+    }
+
+    /* 메인 콘텐츠 영역 */
+    main {
+      flex-grow: 1;
+      padding: 40px 50px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    header {
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .selected-date-title {
+      color: var(--accent-color);
+    }
+
+    .header-info {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* 이미지 카드 그리드 */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 30px;
+      flex-grow: 1;
+    }
+
+    .card {
+      background-color: var(--panel-dark);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: var(--border-color);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .img-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 100%; /* 1:1 비율 유지 */
+      background-color: #000;
+      overflow: hidden;
+    }
+
+    .card img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .card:hover img {
+      transform: scale(1.05);
+    }
+
+    .card-footer {
+      padding: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .zodiac-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .view-btn {
+      font-size: 13px;
+      color: var(--accent-color);
+      font-weight: 600;
+    }
+
+    /* 라이트박스 모달 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(10, 10, 15, 0.95);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content {
+      max-width: 85%;
+      max-height: 85%;
+      border-radius: 12px;
+      box-shadow: 0 10px 50px rgba(0,0,0,0.8);
+      border: 1px solid var(--border-color);
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      font-size: 44px;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s ease;
+    }
+
+    .close-modal:hover {
+      color: var(--accent-color);
+    }
+
+    /* 로딩/비어있음 상태 */
+    .empty-state {
+      text-align: center;
+      padding: 100px 0;
+      color: var(--text-muted);
+      font-size: 18px;
+      width: 100%;
+      grid-column: 1 / -1;
+    }
+
+    /* 스크롤바 디자인 */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-color);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 좌측 사이드바 -->
+  <aside>
+    <div class="logo">
+      <span class="logo-symbol">✦</span>
+      <span>SAJU AUTO BOT</span>
+    </div>
+    
+    <div class="nav-title">생성된 운세 일자</div>
+    <ul class="date-list" id="dateList">
+      <!-- 동적 날짜 아이템 주입 -->
+    </ul>
+  </aside>
+
+  <!-- 메인 내용 화면 -->
+  <main>
+    <header>
+      <div>
+        <h1>일일 카드뉴스 모니터러</h1>
+        <div class="header-info">선택된 일자: <span class="selected-date-title" id="selectedDateText">-</span></div>
+      </div>
+      <div class="header-info" id="imageCountText">총 0개 카드 생성됨</div>
+    </header>
+
+    <!-- 이미지 카드 그리드 컨테이너 -->
+    <div class="grid-container" id="gridContainer">
+      <div class="empty-state">왼쪽 사이드바에서 날짜를 선택해 주세요.</div>
+    </div>
+  </main>
+
+  <!-- 이미지 상세 보기 모달 -->
+  <div class="modal" id="imageModal" onclick="closeModal()">
+    <span class="close-modal">&times;</span>
+    <img class="modal-content" id="modalImg" src="" alt="확대 이미지" onclick="event.stopPropagation()">
+  </div>
+
+  <script>
+    const dateListEl = document.getElementById('dateList');
+    const gridContainerEl = document.getElementById('gridContainer');
+    const selectedDateTextEl = document.getElementById('selectedDateText');
+    const imageCountTextEl = document.getElementById('imageCountText');
+    const imageModalEl = document.getElementById('imageModal');
+    const modalImgEl = document.getElementById('modalImg');
+
+    // 1. 날짜 리스트 조회 및 셋팅
+    async function loadDates() {
+      try {
+        const response = await fetch('/api/dates');
+        const dates = await response.json();
+        
+        dateListEl.innerHTML = '';
+        
+        if (dates.length === 0) {
+          dateListEl.innerHTML = '<li class="empty-state" style="padding: 20px 0; font-size:14px;">생성 이력 없음</li>';
+          return;
+        }
+
+        dates.forEach((date, index) => {
+          const li = document.createElement('li');
+          li.className = 'date-item';
+          li.innerHTML = `
+            <span>${date}</span>
+            <span class="date-badge">12개</span>
+          `;
+          li.onclick = () => selectDate(date, li);
+          dateListEl.appendChild(li);
+
+          // 최초 로드 시 첫 번째 날짜 자동 선택
+          if (index === 0) {
+            selectDate(date, li);
+          }
+        });
+      } catch (err) {
+        console.error('날짜 로드 오류:', err);
+      }
+    }
+
+    // 2. 날짜 선택 이벤트 처리
+    async function selectDate(date, element) {
+      // 액티브 클래스 교체
+      document.querySelectorAll('.date-item').forEach(item => item.classList.remove('active'));
+      element.classList.add('active');
+
+      selectedDateTextEl.textContent = date;
+      gridContainerEl.innerHTML = '<div class="empty-state">카드뉴스 이미지를 로드하고 있습니다...</div>';
+
+      try {
+        const response = await fetch(`/api/images/${date}`);
+        const images = await response.json();
+
+        gridContainerEl.innerHTML = '';
+        imageCountTextEl.textContent = `총 ${images.length}개 카드 생성됨`;
+
+        if (images.length === 0) {
+          gridContainerEl.innerHTML = '<div class="empty-state">생성된 이미지가 존재하지 않습니다.</div>';
+          return;
+        }
+
+        images.forEach(img => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.onclick = () => openModal(img.url);
+          card.innerHTML = `
+            <div class="img-wrapper">
+              <img src="${img.url}" alt="${img.zodiac} 운세" loading="lazy">
+            </div>
+            <div class="card-footer">
+              <span class="zodiac-name">${img.zodiac}</span>
+              <span class="view-btn">확대보기 ➔</span>
+            </div>
+          `;
+          gridContainerEl.appendChild(card);
+        });
+      } catch (err) {
+        gridContainerEl.innerHTML = '<div class="empty-state">이미지 정보를 가져오는 데 실패했습니다.</div>';
+        console.error(err);
+      }
+    }
+
+    // 3. 모달 제어
+    function openModal(imgUrl) {
+      modalImgEl.src = imgUrl;
+      imageModalEl.classList.add('active');
+    }
+
+    function closeModal() {
+      imageModalEl.classList.remove('active');
+    }
+
+    // 단축키 지원 (ESC 누르면 닫기)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // 시작
+    loadDates();
+  </script>
+</body>
+</html>

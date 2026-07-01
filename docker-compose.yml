@@ -6,6 +6,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    # 로컬 브라우저에서 대시보드에 접근할 수 있도록 포트 오픈
+    ports:
+      - "3000:3000"
     # 컨테이너 내 생성된 이미지 파일을 호스트(로컬 PC)에서 바로 볼 수 있도록 볼륨 공유
     volumes:
       - ./output:/usr/src/app/output

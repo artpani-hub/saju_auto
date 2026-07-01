@@ -78,4 +78,8 @@ cron.schedule('0 0 7 * * *', () => {
 
 console.log('[시스템 대기] 사주 운세 자동 봇이 백그라운드 대기 모드로 기동되었습니다. (스케줄: 매일 오전 7시)');
 
+// 3. 로컬 대시보드 웹 서버 실행
+const dashboardServer = require('./server');
+dashboardServer.startServer();
+
 
