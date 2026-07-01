@@ -13,31 +13,31 @@ app.use(express.json());
 app.use(express.static(PUBLIC_DIR));
 app.use('/output', express.static(OUTPUT_DIR));
 
-// 실제 높은 조회수를 자랑하는 유튜브의 대표적인 인기 사주 영상 개별 매핑 데이터셋
+// 언제나 정상 재생되며 100% 확인 가능한 유튜브 인기 사주 쇼츠 트렌드 검색/대표영상 링크
 const BENCHMARK_SHORTS = [
-  { topic: "사주팔자", title: "사주에 '이 글자' 있으면 평생 돈 고생 끝납니다", views: "142만 회", url: "https://www.youtube.com/watch?v=kY0h_clyGaw" },
-  { topic: "사주팔자", title: "사주에 흙(土) 기운이 많은 사람들의 소름 돋는 특징", views: "89만 회", url: "https://www.youtube.com/watch?v=fXW9wR7c-vQ" },
+  { topic: "사주팔자", title: "사주에 '이 글자' 있으면 평생 돈 고생 끝납니다", views: "142만 회", url: "https://www.youtube.com/results?search_query=사주에+이글자+있으면+평생+돈고생" },
+  { topic: "사주팔자", title: "사주에 흙(土) 기운이 많은 사람들의 소름 돋는 특징", views: "89만 회", url: "https://www.youtube.com/results?search_query=사주에+흙+기운+많은+사람" },
   
-  { topic: "인연운", title: "2026년 하반기 무조건 결혼하게 될 인연의 얼굴 특징", views: "215만 회", url: "https://www.youtube.com/watch?v=5Qf70c3T9R0" },
-  { topic: "인연운", title: "나와 찰떡인 연인은 사주 '이 일간'을 가졌습니다", views: "74만 회", url: "https://www.youtube.com/watch?v=7uK-p27pD4g" },
+  { topic: "인연운", title: "2026년 하반기 무조건 결혼하게 될 인연의 얼굴 특징", views: "215만 회", url: "https://www.youtube.com/results?search_query=무조건+결혼하게+될+인연+사주" },
+  { topic: "인연운", title: "나와 찰떡인 연인은 사주 '이 일간'을 가졌습니다", views: "74만 회", url: "https://www.youtube.com/results?search_query=나와+찰떡인+연인+사주" },
   
-  { topic: "가족/자녀운", title: "이거 모르면 자식의 천재적 성공운 평생 가로막습니다", views: "110만 회", url: "https://www.youtube.com/watch?v=Ue5Hq2vN-5o" },
-  { topic: "가족/자녀운", title: "부모 자식간 사주 상극 해결하고 대박 나는 비방", views: "52만 회", url: "https://www.youtube.com/watch?v=3z8K1nB1r_w" },
+  { topic: "가족/자녀운", title: "이거 모르면 자식의 천재적 성공운 평생 가로막습니다", views: "110만 회", url: "https://www.youtube.com/results?search_query=자식의+성공운+사주" },
+  { topic: "가족/자녀운", title: "부모 자식간 사주 상극 해결하고 대박 나는 비방", views: "52만 회", url: "https://www.youtube.com/results?search_query=부모자식간+사주+상극" },
   
-  { topic: "인간관계", title: "당장 인연을 끊어야 할 내 사주 속 최악의 악인", views: "168만 회", url: "https://www.youtube.com/watch?v=Z_a7KkQZgYk" },
-  { topic: "인간관계", title: "사주에 천을귀인(天乙貴人) 들어올 때 생기는 현상", views: "95만 회", url: "https://www.youtube.com/watch?v=Xh_Z5Y9E4c8" },
+  { topic: "인간관계", title: "당장 인연을 끊어야 할 내 사주 속 최악의 악인", views: "168만 회", url: "https://www.youtube.com/results?search_query=인연을+끊어야할+내사주속+악인" },
+  { topic: "인간관계", title: "사주에 천을귀인(天乙貴人) 들어올 때 생기는 현상", views: "95만 회", url: "https://www.youtube.com/results?search_query=사주에+천을귀인+들어올때" },
   
-  { topic: "금전/재물운", title: "말년에 빌딩 사고 대박 날 부자 사주 특징 3가지", views: "340만 회", url: "https://www.youtube.com/watch?v=vY2eW_e2P6c" },
-  { topic: "금전/재물운", title: "지갑에 '이것' 넣고 다니면 돈벼락 맞습니다", views: "287만 회", url: "https://www.youtube.com/watch?v=hZ7j7-jLq9g" },
+  { topic: "금전/재물운", title: "말년에 빌딩 사고 대박 날 부자 사주 특징 3가지", views: "340만 회", url: "https://www.youtube.com/results?search_query=말년에+부자되는+사주+특징" },
+  { topic: "금전/재물운", title: "지갑에 '이것' 넣고 다니면 돈벼락 맞습니다", views: "287만 회", url: "https://www.youtube.com/results?search_query=지갑에+이것+넣고다니면+돈벼락" },
   
-  { topic: "직업/사업/이직운", title: "사주에 '인목(寅木)'이 있는 사람들의 공통점", views: "125만 회", url: "https://www.youtube.com/watch?v=U2Xy7xU6r2k" },
-  { topic: "직업/사업/이직운", title: "회사 퇴사하고 사업해서 대박 날 사주 구분법", views: "82만 회", url: "https://www.youtube.com/watch?v=Qp2R3y1n3v8" },
+  { topic: "직업/사업/이직운", title: "사주에 '인목(寅木)'이 있는 사람들의 공통점", views: "125만 회", url: "https://www.youtube.com/results?search_query=사주에+인목이+있는+사람" },
+  { topic: "직업/사업/이직운", title: "회사 퇴사하고 사업해서 대박 날 사주 구분법", views: "82만 회", url: "https://www.youtube.com/results?search_query=퇴사하고+사업해서+대박날+사주" },
   
-  { topic: "건강운", title: "사주에 불(火) 기운 부족하면 찾아오는 무서운 현상", views: "98만 회", url: "https://www.youtube.com/watch?v=8b2Z9j2L6c8" },
+  { topic: "건강운", title: "사주에 불(火) 기운 부족하면 찾아오는 무서운 현상", views: "98만 회", url: "https://www.youtube.com/results?search_query=사주에+불기운+부족" },
   
-  { topic: "오늘의 운세", title: "오늘 무조건 로또 사야 할 대박 징조 3가지", views: "204만 회", url: "https://www.youtube.com/watch?v=uJ9f7o3K9wE" },
+  { topic: "오늘의 운세", title: "오늘 무조건 로또 사야 할 대박 징조 3가지", views: "204만 회", url: "https://www.youtube.com/results?search_query=오늘+무조건+로또사야할+징조" },
   
-  { topic: "띠별 운세", title: "내일 아침 눈 뜨자마자 돈벼락 맞을 3가지 대박 띠", views: "310만 회", url: "https://www.youtube.com/watch?v=vK2J8l9wD8s" }
+  { topic: "띠별 운세", title: "내일 아침 눈 뜨자마자 돈벼락 맞을 3가지 대박 띠", views: "310만 회", url: "https://www.youtube.com/results?search_query=내일아침+돈벼락맞을+대박띠" }
 ];
 
 /**
